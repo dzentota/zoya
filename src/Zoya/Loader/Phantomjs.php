@@ -60,11 +60,6 @@ class Phantomjs implements LoaderInterface
      */
     public function setPhantomJS($path)
     {
-        if (!file_exists($path) || !is_executable($path)) {
-            throw new \InvalidArgumentException(
-                sprintf('PhantomJs file does not exist or is not executable: %s',
-                    $path));
-        }
         $this->phantomJS = $path;
         return $this;
     }
