@@ -18,57 +18,86 @@ class Phantomjs implements LoaderInterface
     /**
      * @var string
      */
-    protected $phantomJS = '/usr/bin/phantomjs';
+    protected $phantomJS;
     /**
      * Overrides default values of Phantomjs settings object
      * @url http://phantomjs.org/api/webpage/property/settings.html
      * @var array
      */
-    protected $settings = [];
-
-    /**
-     * @var string
-     */
-    protected $js = <<<EOL
-
-    var page = require('webpage').create(),
-    response = {},
-    headers = %1\$s;
-    %2\$s;
-    page.onResourceTimeout = function (e) {
-        response = e;
-        response.status = e.errorCode;
-    };
-
-    page.onResourceReceived = function (r) {
-        if(!response.status) response = r;
-    };
-    page.customHeaders = headers ? headers : {};
-
-    page.open('%3\$s', '%4\$s', '%5\$s', function (status) {
-    if (status === 'success') {
-        response.content = page.evaluate(function () {
-            return document.getElementsByTagName('html')[0].innerHTML
-        });
-        console.log(JSON.stringify(response, undefined, 4));
-        phantom.exit();
-    } else {
-        console.log(JSON.stringify(response, undefined, 4));
-        phantom.exit();
-    }
-    });
-
-EOL;
-
+    protected $settings = ['loadImages' => false];
 
     /**
      * @param array $settings
+     * @param string $phantomJS
      */
-    public function __construct(array $settings = [])
+    public function __construct(array $settings = [], $phantomJS = '/usr/bin/phantomjs')
     {
+        $this->phantomJS = $phantomJS;
         //Don't load images
-        $defaultSettings = ['loadImages' => false];
-        $this->settings = array_merge($defaultSettings, $settings);
+        $this->addSettings($settings);
+    }
+
+    /**
+     * @return string
+     */
+    public function getPhantomJS()
+    {
+        return $this->phantomJS;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSettings()
+    {
+        return $this->settings;
+    }
+
+    /**
+     * @param $path
+     * @return $this
+     * @throws \InvalidArgumentException
+     */
+    public function setPhantomJS($path)
+    {
+        if (!file_exists($path) || !is_executable($path)) {
+            throw new \InvalidArgumentException(
+                sprintf('PhantomJs file does not exist or is not executable: %s',
+                    $path));
+        }
+        $this->phantomJS = $path;
+        return $this;
+    }
+
+    /**
+     * @param array $settings
+     * @return $this
+     */
+    public function setSettings(array $settings = [])
+    {
+        $this->settings = $settings;
+        return $this;
+    }
+
+    /**
+     * @param array $settings
+     * @return $this
+     */
+    public function addSettings(array $settings = [])
+    {
+        $this->settings = array_merge($this->settings, $settings);
+        return $this;
+    }
+
+    /**
+     * @param $key
+     * @param $val
+     * @return $this
+     */
+    public function addSetting($key, $val)
+    {
+        $this->settings[$key] = $val;
+        return $this;
     }
 
     /**
@@ -81,18 +110,6 @@ EOL;
         $this->processResponse($response, $result);
     }
 
-
-    /**
-     * @return string
-     */
-    protected function buildSettings()
-    {
-        $settings = json_encode($this->settings);
-        $js = "var settings = $settings;\n";
-        $js .= "for (var i in settings) { page.settings[i] = settings[i];}\n";
-        return $js;
-    }
-
     /**
      * @param Resource|\Valera\Resource $resource
      * @throws \InvalidArgumentException
@@ -101,72 +118,32 @@ EOL;
      */
     protected function sendRequest(Resource $resource)
     {
-        if (!file_exists($this->phantomJS) || !is_executable($this->phantomJS)) {
+        $phantomJS = $this->getPhantomJS();
+        if (!file_exists($phantomJS) || !is_executable($phantomJS)) {
             throw new \InvalidArgumentException(
                 sprintf('PhantomJs file does not exist or is not executable: %s',
-                $this->phantomJS));
+                $phantomJS));
         }
         try {
-
-            $script = false;
-
-            $data = sprintf(
-                $this->js,
-                json_encode($resource->getHeaders()),
-                $this->buildSettings(),
-                $resource->getUrl(),
-                $resource->getMethod(),
-                $resource->getData()
-            );
-            $script = $this->writeScript($data);
-            $cmd = escapeshellcmd(sprintf("%s %s", $this->phantomJS, $script));
-
+            $cmd = escapeshellcmd(
+                sprintf("%s %s %s %s %s %s %s", 
+                        $phantomJS,
+                        ZOYA_ROOT . '/loader.js', 
+                        json_encode($resource->getHeaders()),
+                        json_encode($this->settings),
+                        $resource->getUrl(),
+                        $resource->getMethod(),
+                        $resource->getData()
+                    )
+                );
             $response = shell_exec($cmd);
 
-            $this->removeScript($script);
         } catch (\Exception $e) {
-            $this->removeScript($script);
+
             throw new \Exception(sprintf('Error when executing PhantomJs command: %s - %s',
                 $cmd, $e->getMessage()));
         }
-
         return $response;
-    }
-
-    /**
-     * @param $data
-     * @return string
-     * @throws \Exception
-     */
-    protected function writeScript($data)
-    {
-        $file = tempnam('/tmp', 'phantomjs');
-
-        // Could not create tmp file
-        if (!$file || !is_writable($file)) {
-            throw new \Exception(
-                'Could not create tmp file on system. Please check your tmp directory and make sure it is writeable.');
-        }
-        // Could not write script data to tmp file
-        if (file_put_contents($file, $data) === false) {
-            $this->removeScript($file);
-            throw new \Exception(
-                sprintf('Could not write data to tmp file: %s.
-                Please check your tmp directory and make sure it is writeable.', $file));
-        }
-        return $file;
-    }
-
-    /**
-     * @param $file
-     * @return $this
-     */
-    protected function removeScript($file)
-    {
-        if (is_string($file) && file_exists($file)) {
-            unlink($file);
-        }
-        return $this;
     }
 
 
