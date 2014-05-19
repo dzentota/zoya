@@ -157,18 +157,16 @@ class Phantomjs implements LoaderInterface
             $result->fail('Unexpected response');
         }
 
-        // Not a JSON string
-        if (substr($response, 0, 1) !== '{') {
-            $result->fail('Bad response format');
-            return;
-        }
         $data = json_decode($response, true);
+        if (is_null($data)) {
+            $result->fail('Bad response format');
+        }
         //Maybe content can be blank on POST request?
         if (empty($data['status']) || empty($data['content'])) {
             $result->fail('No content found');
             return;
         }
-        if ($data['status'] > 400 && $data['status'] < 600) {
+        if ($data['status'] >= 400 && $data['status'] < 600) {
             $result->fail("HTTP code: " . $data['status']);
         } else {
             $result->setContent($data['content']);
