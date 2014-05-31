@@ -96,12 +96,12 @@ class Phantomjs implements LoaderInterface
     }
 
     /**
-     * @param Source $source
+     * @param \Valera\Resource $source
      * @param LoaderResult $result
      */
-    public function load(Source $source, LoaderResult $result)
+    public function load(Resource $source, LoaderResult $result)
     {
-        $response = $this->sendRequest($source->getResource());
+        $response = $this->sendRequest($source);
         $this->processResponse($response, $result);
     }
 
@@ -164,8 +164,10 @@ class Phantomjs implements LoaderInterface
         if ($data['status'] >= 400 && $data['status'] < 600) {
             $result->fail("HTTP code: " . $data['status']);
         } else {
-            $result->setContent($data['content']);
+            list($contentType, $charset) = explode(';', $data['contentType']);
+            $result->setContent($data['content'], $contentType);
         }
+
     }
 
 }
