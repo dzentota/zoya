@@ -166,7 +166,8 @@ class Phantomjs implements LoaderInterface
             $result->fail("HTTP code: " . $data['status']);
         } else {
             list($contentType, $charset) = explode(';', $data['contentType']);
-            $result->setContent($data['content'], strval($contentType));
+            $content = "<html>{$data['content']}</html>";
+            $result->setContent($content, strval($contentType));
         }
 
     }
