@@ -6,7 +6,6 @@ use Valera\Loader\LoaderInterface;
 use Valera\Loader\Result as LoaderResult;
 use Valera\Loader;
 use Valera\Resource;
-use Valera\Source;
 
 /**
  * Class Phantomjs
@@ -150,11 +149,13 @@ class Phantomjs implements LoaderInterface
     {
         if ($response === null || !is_string($response)) {
             $result->fail('Unexpected response');
+            return;
         }
 
         $data = json_decode($response, true);
         if (is_null($data)) {
             $result->fail('Bad response format');
+            return;
         }
         //Maybe content can be blank on POST request?
         if (empty($data['status']) || empty($data['content'])) {
@@ -165,7 +166,7 @@ class Phantomjs implements LoaderInterface
             $result->fail("HTTP code: " . $data['status']);
         } else {
             list($contentType, $charset) = explode(';', $data['contentType']);
-            $result->setContent($data['content'], $contentType);
+            $result->setContent($data['content'], strval($contentType));
         }
 
     }
