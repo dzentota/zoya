@@ -2,6 +2,7 @@
 
 namespace Zoya\Loader;
 
+use Assert\Assertion;
 use Valera\Loader\LoaderInterface;
 use Valera\Loader\Result as LoaderResult;
 use Valera\Loader;
@@ -25,6 +26,7 @@ class Phantomjs implements LoaderInterface
      */
     protected $settings = ['loadImages' => false];
 
+    protected $cliOptions = [];
     /**
      * @param array $settings
      * @param string $phantomJS
@@ -50,6 +52,43 @@ class Phantomjs implements LoaderInterface
     public function getSettings()
     {
         return $this->settings;
+    }
+
+    public function getCliOptions()
+    {
+        return $this->cliOptions;
+    }
+
+    /**
+     * @param array $options
+     * @return $this
+     */
+    public function setCliOptions(array $options = [])
+    {
+        $this->cliOptions = $options;
+        return $this;
+    }
+
+    /**
+     * @param array $options
+     * @return $this
+     */
+    public function addCliOptions(array $options = [])
+    {
+        $this->cliOptions = array_merge($this->cliOptions, $options);
+        return $this;
+    }
+
+    protected function buildCliOptions()
+    {
+        $cliOptions = [];
+        if ($options = $this->getCliOptions()) {
+            foreach ($options as $k=>$v) {
+
+                $cliOptions[] = sprintf("--%s=%s", $k, escapeshellarg($v));
+            }
+        }
+        return implode(' ',  $cliOptions);
     }
 
     /**
@@ -120,8 +159,9 @@ class Phantomjs implements LoaderInterface
         }
         try {
             $cmd = escapeshellcmd(
-                sprintf("%s %s %s %s %s %s %s", 
+                sprintf("%s %s %s %s %s %s %s %s",
                         $phantomJS,
+                        $this->buildCliOptions(),
                         ZOYA_ROOT . '/loader.js', 
                         json_encode($resource->getHeaders()),
                         json_encode($this->settings),
@@ -172,4 +212,38 @@ class Phantomjs implements LoaderInterface
 
     }
 
+    /**
+     * @param $proxy
+     * @return $this
+     */
+    public function setProxy($proxy)
+    {
+        Assertion::url($proxy, 'Proxy should be a valid URL');
+        $this->addCliOptions(
+            array_filter($this->parseProxy($proxy), function($opt) {
+                return !empty($opt);
+            })
+        );
+        return $this;
+    }
+
+    /**
+     * @param $proxy
+     * @return array
+     */
+    protected function parseProxy($proxy)
+    {
+        $chunks = parse_url($proxy);
+        $proxy = isset($chunks['port'])?
+                $chunks['host'] . ':' . $chunks['port'] :
+                $chunks['host'];
+        $proxyAuth = isset($chunks['pass'])?
+                    $chunks['user'] . ':' . $chunks['pass'] :
+                    '';
+        return [
+            'proxy-type' => $chunks['scheme'],
+            'proxy' => $proxy,
+            'proxy-auth' => $proxyAuth
+        ];
+    }
 }
