@@ -2,36 +2,14 @@
 
 namespace Zoya;
 
-use Guzzle\Http\Client;
-use Valera\Loader\LoaderInterface;
-use Valera\Loader\Result;
-use Valera\Resource;
-use Zoya\Loader\ChangeIdentityInterface;
-
-class ProxySwitcher implements LoaderInterface
+class ProxySwitcher extends GenericProxySwitcher
 {
-    private $loader;
-
-    private $client;
-
-    private $identity;
-
-    public function __construct(LoaderInterface $loader, $client, ChangeIdentityInterface $identity)
+    protected function changeIdentity()
     {
-        $this->loader = $loader;
-        $this->client = $client;
-        $this->identity = $identity;
-    }
-
-    public function load(Resource $resource, Result $result)
-    {
-        $this->loader->load($resource, $result);
-
-        $config = $this->client->getConfig();
-        $config[Client::REQUEST_OPTIONS]['proxy'] = $this->identity->getIdentity()->getServer();
-        $this->client->setConfig($config);
-
-        $this->identity->changeIdentity();
-
+        $config = $this->getClient()->getConfig();
+        $this->getProxies()->next();
+        $proxy = $this->getProxies()->current();
+        $config[Client::REQUEST_OPTIONS]['proxy'] = $proxy->getServer();
+        $this->getClient()->setConfig($config);
     }
 }

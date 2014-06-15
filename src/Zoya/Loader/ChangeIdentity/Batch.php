@@ -4,7 +4,7 @@ namespace Zoya\Loader\ChangeIdentity;
 
 use Assert\Assertion;
 
-class Batch extends Generic
+class Batch
 {
     protected $requestsCount;
     protected $batchSize;
@@ -28,8 +28,8 @@ class Batch extends Generic
     {
         $this->requestsCount++;
         if ($this->getBatchSize() == $this->requestsCount) {
-            return $this->proxies->next();
+            return true;
         }
-
+        return false;
     }
 }

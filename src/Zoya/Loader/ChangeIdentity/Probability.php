@@ -4,7 +4,7 @@ namespace Zoya\Loader\ChangeIdentity;
 
 use Assert\Assertion;
 
-class Probability extends Generic
+class Probability
 {
     protected  $percents;
     const DEFAULT_PERCENTS = 10;
@@ -26,7 +26,8 @@ class Probability extends Generic
     {
         $rnd = rand(1, 100);
         if ($rnd <= $this->getPercents()) {
-            $this->proxies->next();
+            return true;
         }
+        return false;
     }
 }

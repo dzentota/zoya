@@ -2,7 +2,7 @@
 
 namespace Zoya\Loader\ChangeIdentity;
 
-class Random extends Generic
+class Random
 {
 
     public function changeIdentity()
@@ -10,8 +10,9 @@ class Random extends Generic
         $probability = rand(1, 100);
         $rnd = rand(1, 100);
         if ($rnd <= $probability) {
-            $this->proxies->next();
+            return true;
         }
+        return false;
     }
 
 }
