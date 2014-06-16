@@ -34,7 +34,7 @@ class ProxyServer
     /**
      * @var
      */
-    private $password;
+    private $pass;
     /**
      * @var
      */
@@ -75,7 +75,7 @@ class ProxyServer
      */
     public function getPassword()
     {
-        return $this->password;
+        return $this->pass;
     }
 
     /**
@@ -124,11 +124,15 @@ class ProxyServer
      */
     public function __construct($server)
     {
-        Assertion::url($server);
-        $data = parse_url($server);
-        $this->server = $server;
-        foreach ($data as $param=>$value) {
-            $this->$param = $value;
+        //Do not use Assert::url because it don't support username@password in URL
+        if (false !== filter_var($server, FILTER_VALIDATE_URL)) {
+            $data = parse_url($server);
+            $this->server = $server;
+            foreach ($data as $param=>$value) {
+                $this->$param = $value;
+            }
+        } else {
+            throw new \InvalidArgumentException('Valid URL expected');
         }
     }
 
