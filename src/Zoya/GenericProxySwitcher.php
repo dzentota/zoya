@@ -2,10 +2,12 @@
 
 namespace Zoya;
 
+use Symfony\Component\Yaml\Exception\RuntimeException;
 use Valera\Loader\LoaderInterface;
 use Valera\Loader\Result;
 use Valera\Resource;
 use Zoya\Loader\ChangeIdentityInterface;
+use Zoya\ProxySwitcher\AdapterInterface;
 
 abstract class GenericProxySwitcher implements LoaderInterface
 {
@@ -68,4 +70,21 @@ abstract class GenericProxySwitcher implements LoaderInterface
     }
 
     abstract protected function changeIdentity();
+
+    /**
+     * @param LoaderInterface $loader
+     * @return AdapterInterface
+     * @throws \RuntimeException
+     */
+    public function getLoaderAdapter(LoaderInterface $loader)
+    {
+        $adapterClassName = '\Zoya\ProxySwitcher\\' . str_replace('\\', '', get_class($loader)) . 'Adapter';
+        if (class_exists($adapterClassName)) {
+            return new $adapterClassName($this);
+        }
+        throw new \RuntimeException(
+            sprintf('Adapter for class %s not found', get_class($loader))
+        );
+    }
+
 }

@@ -212,38 +212,4 @@ class Phantomjs implements LoaderInterface
 
     }
 
-    /**
-     * @param $proxy
-     * @return $this
-     */
-    public function setProxy($proxy)
-    {
-        Assertion::url($proxy, 'Proxy should be a valid URL');
-        $this->addCliOptions(
-            array_filter($this->parseProxy($proxy), function($opt) {
-                return !empty($opt);
-            })
-        );
-        return $this;
-    }
-
-    /**
-     * @param $proxy
-     * @return array
-     */
-    protected function parseProxy($proxy)
-    {
-        $chunks = parse_url($proxy);
-        $proxy = isset($chunks['port'])?
-                $chunks['host'] . ':' . $chunks['port'] :
-                $chunks['host'];
-        $proxyAuth = isset($chunks['pass'])?
-                    $chunks['user'] . ':' . $chunks['pass'] :
-                    '';
-        return [
-            'proxy-type' => $chunks['scheme'],
-            'proxy' => $proxy,
-            'proxy-auth' => $proxyAuth
-        ];
-    }
 }

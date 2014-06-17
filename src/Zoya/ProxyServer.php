@@ -48,6 +48,8 @@ class ProxyServer
      */
     private $fragment;
 
+    private $type;
+
     /**
      * @return string
      */
@@ -117,6 +119,18 @@ class ProxyServer
     {
         return $this->user;
     }
+
+    public function setType($type)
+    {
+        $this->type = $type;
+        return $this;
+    }
+
+    public function getType()
+    {
+        return isset($this->type)? $this->type : $this->getScheme();
+    }
+
 
 
     /**
