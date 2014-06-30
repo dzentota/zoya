@@ -2,15 +2,15 @@
 
 namespace Zoya\ProxySwitcher;
 
-class ZoyaLoaderPhantomjsAdapter extends GenericAdapter
+class PhantomjsSwitcher extends Generic
 {
 
     public function switchProxy()
     {
-        $proxy = $this->getSwitcher()->getProxies()->current();
-        $loader = $this->getSwitcher()->getLoader();
+        $proxy = $this->getProxyServer();
+        $loader = $this->getLoader();
         $config['proxy-type'] = $proxy->getType();
-        $config['proxy'] = $proxy->getPort()? $proxy->getHost() . ':' . $proxy->getProxy
+        $config['proxy'] = $proxy->getPort()? $proxy->getHost() . ':' . $proxy->getPort()
             : $proxy->getHost();
         $config['proxy-auth'] = $proxy->getPassword()? $this->getUser() . ':' . $proxy->getPassword()
             : $proxy->getUser();
@@ -19,6 +19,5 @@ class ZoyaLoaderPhantomjsAdapter extends GenericAdapter
                 return !empty($opt);
             })
         );
-
     }
 }

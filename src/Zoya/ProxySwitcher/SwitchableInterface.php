@@ -1,7 +1,8 @@
 <?php
+
 namespace Zoya\ProxySwitcher;
 
-interface AdapterInterface
+interface SwitchableInterface
 {
     public function switchProxy();
 }

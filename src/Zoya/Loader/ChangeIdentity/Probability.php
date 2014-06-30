@@ -4,7 +4,7 @@ namespace Zoya\Loader\ChangeIdentity;
 
 use Assert\Assertion;
 
-class Probability
+class Probability implements ChangeIdentityInterface
 {
     protected  $percents;
     const DEFAULT_PERCENTS = 10;

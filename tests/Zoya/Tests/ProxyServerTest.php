@@ -18,7 +18,6 @@ class ProxyServerTest extends \PHPUnit_Framework_TestCase
 
     public function testParseUrl()
     {
-        $url = 'httrp://username:password@hostname/path?arg=value#anchor';
         $proxy = new ProxyServer('http://username:password@hostname/path?arg=value#anchor');
 
         $this->assertEquals('http', $proxy->getScheme());
@@ -28,6 +27,43 @@ class ProxyServerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('/path', $proxy->getPath());
         $this->assertEquals('arg=value', $proxy->getQuery());
         $this->assertEquals('anchor', $proxy->getFragment());
-
+        $this->assertEquals('http', $proxy->getType());
     }
+
+    public function testType()
+    {
+        $proxy = new ProxyServer('http://username:password@hostname/path?arg=value#anchor');
+        $this->assertEquals('http', $proxy->getType());
+
+        $proxy->setType('socks5');
+        $this->assertEquals('socks5', $proxy->getType());
+    }
+
+    /**
+     * @expectedException \Assert\AssertionFailedException
+     */
+    public function testInvalidType()
+    {
+        $proxy = new ProxyServer('http://username:password@hostname/path?arg=value#anchor');
+        $proxy->setType('foo');
+    }
+
+    public function testStatus()
+    {
+        $proxy = new ProxyServer('http://username:password@hostname/path?arg=value#anchor');
+        $this->assertEquals(ProxyServer::STATUS_UNKNOWN, $proxy->getStatus());
+
+        $proxy->setStatus(ProxyServer::STATUS_ALIVE);
+        $this->assertEquals(ProxyServer::STATUS_ALIVE, $proxy->getStatus());
+    }
+
+    /**
+     * @expectedException \Assert\AssertionFailedException
+     */
+    public function testInvalidStatus()
+    {
+        $proxy = new ProxyServer('http://username:password@hostname/path?arg=value#anchor');
+        $proxy->setStatus('foo');
+    }
+
 }

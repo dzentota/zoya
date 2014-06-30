@@ -4,7 +4,7 @@ namespace Zoya\Loader\ChangeIdentity;
 
 use Assert\Assertion;
 
-class Batch
+class Batch implements ChangeIdentityInterface
 {
     protected $requestsCount;
     protected $batchSize;

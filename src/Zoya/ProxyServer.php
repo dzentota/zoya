@@ -10,6 +10,14 @@ use Assert\Assertion;
  */
 class ProxyServer
 {
+    const TYPE_HTTP = 'http';
+    const TYPE_HTTPS = 'https';
+    const TYPE_SOCKS5 = 'socks5';
+
+    const STATUS_UNKNOWN = 0;
+    const STATUS_ALIVE = 1;
+    const STATUS_DEAD = 2;
+
     /**
      * @var
      */
@@ -48,8 +56,30 @@ class ProxyServer
      */
     private $fragment;
 
+    /**
+     * @var
+     */
     private $type;
 
+    /**
+     * @var int
+     */
+    private $status;
+    /**
+     * @param $status
+     * @return $this
+     */
+    public function setStatus($status)
+    {
+        Assertion::inArray($status, [self::STATUS_UNKNOWN, self::STATUS_ALIVE, self::STATUS_DEAD]);
+        $this->status = $status;
+        return $this;
+    }
+
+    public function getStatus()
+    {
+        return $this->status? : self::STATUS_UNKNOWN;
+    }
     /**
      * @return string
      */
@@ -66,6 +96,9 @@ class ProxyServer
         return $this->host;
     }
 
+    /**
+     * @return mixed
+     */
     public function getPort()
     {
         return $this->port;
@@ -120,21 +153,30 @@ class ProxyServer
         return $this->user;
     }
 
+    /**
+     * @param $type
+     * @return $this
+     */
     public function setType($type)
     {
+        Assertion::inArray($type, [self::TYPE_HTTP, self::TYPE_HTTPS, self::TYPE_SOCKS5]);
         $this->type = $type;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getType()
     {
-        return isset($this->type)? $this->type : $this->getScheme();
+        $type = $this->type? : $this->getScheme();
+        return $type?: self::TYPE_HTTP;
     }
-
 
 
     /**
      * @param $server
+     * @throws \InvalidArgumentException
      */
     public function __construct($server)
     {

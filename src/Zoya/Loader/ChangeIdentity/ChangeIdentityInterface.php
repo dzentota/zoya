@@ -1,5 +1,5 @@
 <?php
-namespace Zoya\Loader;
+namespace Zoya\Loader\ChangeIdentity;
 
 interface ChangeIdentityInterface
 {

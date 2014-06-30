@@ -2,7 +2,7 @@
 
 namespace Zoya\Loader\ChangeIdentity;
 
-class Random
+class Random implements ChangeIdentityInterface
 {
 
     public function changeIdentity()
