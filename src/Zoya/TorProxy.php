@@ -3,47 +3,21 @@
 namespace Zoya;
 
 use Assert\Assertion;
-use Valera\Resource;
 
-class TorProxySwitcher extends GenericProxySwitcher
+/**
+ *
+ * Class TorProxy
+ * @package Zoya\ProxySwitcher
+ */
+class TorProxy extends Proxy
 {
-    private $ip = '127.0.0.1';
-    private $port = '8118';
-    private $password = '';
     private $cookieFileName;
 
-    public function setIp($ip)
-    {
-        $this->ip = $ip;
-        return $this;
-    }
-
-    public function getIp()
-    {
-        return $this->ip;
-    }
-
-    public function setPassword($password)
-    {
-        $this->password = $password;
-        return $this;
-    }
 
     public function getPassword()
     {
         return $this->getCookieFileName()?
-            $this->getCookie() : $this->password;
-    }
-
-    public function setPort($port)
-    {
-        $this->port = $port;
-        return $this;
-    }
-
-    public function getPort()
-    {
-        return $this->port;
+            $this->getCookie() : $this->getProxy()->getPassword();
     }
 
     /**
@@ -80,13 +54,18 @@ class TorProxySwitcher extends GenericProxySwitcher
         return strtoupper($hex);
     }
 
-    protected function changeIdentity()
+    /**
+     * Send signal to TOR to change identity
+     * @return bool
+     * @throws \RuntimeException
+     */
+    public function switchProxy()
     {
-        $fp = fsockopen($this->getIp(), $this->getPort(), $errno, $errstr, 30);
+        $fp = fsockopen($this->getProxy()->getIp(), $this->getProxy()->getPort(), $errno, $errstr, 30);
         if (!$fp) {
             throw new \RuntimeException("Can't connect to the control port. " . $errstr);
         }
-        fputs($fp, "AUTHENTICATE ". $this->getPassword()."\r\n");
+        fputs($fp, "AUTHENTICATE ". $this->getProxy()->getPassword()."\r\n");
         $response = fread($fp, 1024);
         list($code, $text) = explode(' ', $response, 2);
         if ($code != '250') {
@@ -101,5 +80,16 @@ class TorProxySwitcher extends GenericProxySwitcher
         } //signal failed
         fclose($fp);
         return true;
+    }
+
+    /**
+     *
+     */
+    public function switchIdentity()
+    {
+        if ($this->getIdentity()->changeIdentity()) {
+            $this->getProxies()->next();
+            $this->switchProxy();
+        }
     }
 }

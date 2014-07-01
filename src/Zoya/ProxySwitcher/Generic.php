@@ -6,9 +6,9 @@ use Valera\Loader\LoaderInterface;
 use Valera\Loader\Result;
 use Valera\Resource;
 use Zoya\Proxy;
-use Zoya\ProxySwitcher\SwitchableInterface;
+use Zoya\ProxySwitcher\ProxyInterface;
 
-abstract class Generic implements LoaderInterface, SwitchableInterface
+abstract class Generic implements LoaderInterface, ProxyInterface
 {
 
     private $loader;
@@ -72,7 +72,7 @@ abstract class Generic implements LoaderInterface, SwitchableInterface
      */
     public function __call($method, $params)
     {
-        return call_user_func_array(array($this->loader, $method), $params);
+        return call_user_func_array(array($this->getLoader(), $method), $params);
     }
 
     abstract public function switchProxy();

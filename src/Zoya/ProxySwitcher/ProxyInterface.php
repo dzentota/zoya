@@ -2,7 +2,7 @@
 
 namespace Zoya\ProxySwitcher;
 
-interface SwitchableInterface
+interface ProxyInterface
 {
     public function switchProxy();
 }

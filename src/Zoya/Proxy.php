@@ -3,7 +3,7 @@
 namespace Zoya;
 
 use Assert\Assertion;
-use Zoya\Loader\ChangeIdentityInterface;
+use Zoya\Loader\ChangeIdentity\ChangeIdentityInterface;
 
 class Proxy
 {
@@ -31,7 +31,7 @@ class Proxy
     }
 
     /**
-     * @return ChangeIdentityInterface
+     * @return \Zoya\Loader\ChangeIdentity\ChangeIdentityInterface
      */
     public function getIdentity()
     {
