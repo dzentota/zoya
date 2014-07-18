@@ -41,7 +41,7 @@ class TorProxy extends Proxy
     /**
      * Load the TOR's cookie from a file and encode it in hexadecimal.
      **/
-    function getCookie()
+    public function getCookie()
     {
         $filename = $this->getCookieFileName();
         $cookie = file_get_contents($filename);
@@ -59,8 +59,9 @@ class TorProxy extends Proxy
      * @return bool
      * @throws \RuntimeException
      */
-    public function switchProxy()
+    protected function switchProxy()
     {
+        $this->getProxies()->next();
         $fp = fsockopen($this->getProxy()->getIp(), $this->getProxy()->getPort(), $errno, $errstr, 30);
         if (!$fp) {
             throw new \RuntimeException("Can't connect to the control port. " . $errstr);
@@ -82,14 +83,4 @@ class TorProxy extends Proxy
         return true;
     }
 
-    /**
-     *
-     */
-    public function switchIdentity()
-    {
-        if ($this->getIdentity()->changeIdentity()) {
-            $this->getProxies()->next();
-            $this->switchProxy();
-        }
-    }
 }

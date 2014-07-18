@@ -2,7 +2,7 @@
 
 namespace Zoya\ProxySwitcher;
 
-use Guzzle\Http\Client;
+use GuzzleHttp\Client;
 use Valera\Loader\LoaderInterface;
 use Zoya\Proxy;
 use Zoya\ProxyServer;
@@ -27,13 +27,8 @@ class GuzzleSwitcher extends Generic
     public function switchProxy()
     {
         $client = $this->getClient();
-        $config = $client->getConfig();
         $proxy = $this->getProxyServer();
-        $proxyConfig[Client::REQUEST_OPTIONS]['proxy'] = $proxy->getServer();
-        if ($proxy->getType() == ProxyServer::TYPE_SOCKS5) {
-            $proxyConfig[Client::CURL_OPTIONS][CURLOPT_PROXYTYPE] = CURLPROXY_SOCKS5;
-        }
-        $config->overwriteWith($proxyConfig);
-        $client->setConfig($config);
+        $client->setDefaultOption('proxy', $proxy->getServer());
+
     }
 }

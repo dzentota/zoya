@@ -175,15 +175,15 @@ class ProxyServer
 
 
     /**
-     * @param $server
+     * @param $url
      * @throws \InvalidArgumentException
      */
-    public function __construct($server)
+    public function __construct($url)
     {
         //Do not use Assert::url because it don't support username@password in URL
-        if (false !== filter_var($server, FILTER_VALIDATE_URL)) {
-            $data = parse_url($server);
-            $this->server = $server;
+        if (false !== filter_var($url, FILTER_VALIDATE_URL)) {
+            $data = parse_url($url);
+            $this->server = $url;
             foreach ($data as $param=>$value) {
                 $this->$param = $value;
             }

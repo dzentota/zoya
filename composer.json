@@ -18,7 +18,9 @@
         "php": ">=5.4",
         "valera/engine": "dev-master",
         "zoya/readability": "dev-master",
-        "valera/guzzle": "dev-master"
+        "valera/guzzle": "dev-master",
+        "beberlei/assert": "@stable",
+        "zoya/coin": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.0"

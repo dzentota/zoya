@@ -8,13 +8,26 @@ use Valera\Resource;
 use Zoya\Proxy;
 use Zoya\ProxySwitcher\ProxyInterface;
 
+/**
+ * Class Generic
+ * @package Zoya\ProxySwitcher
+ */
 abstract class Generic implements LoaderInterface, ProxyInterface
 {
 
+    /**
+     * @var \Valera\Loader\LoaderInterface
+     */
     private $loader;
 
+    /**
+     * @var null
+     */
     private $client;
 
+    /**
+     * @var \Zoya\Proxy
+     */
     private $proxy;
 
     /**
@@ -41,11 +54,19 @@ abstract class Generic implements LoaderInterface, ProxyInterface
         return $this->proxy->getProxy();
     }
 
+    /**
+     * @return Proxy
+     */
     public function getProxy()
     {
         return $this->proxy;
     }
 
+    /**
+     * @param LoaderInterface $loader
+     * @param Proxy $proxy
+     * @param null $client
+     */
     public function __construct(LoaderInterface $loader, Proxy $proxy, $client = null)
     {
         $this->loader = $loader;
@@ -75,6 +96,9 @@ abstract class Generic implements LoaderInterface, ProxyInterface
         return call_user_func_array(array($this->getLoader(), $method), $params);
     }
 
+    /**
+     * @return mixed
+     */
     abstract public function switchProxy();
 
 }

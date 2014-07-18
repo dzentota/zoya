@@ -3,23 +3,21 @@
 namespace Zoya;
 
 use Assert\Assertion;
-use Zoya\Loader\ChangeIdentity\ChangeIdentityInterface;
+use Zoya\Coin\CoinInterface;
 
 class Proxy
 {
     private $proxies;
-    private $identity;
+    private $coin;
 
     /**
-     * @param ChangeIdentityInterface $identity
-     * @param array $proxies
+     * @param \Zoya\Coin\CoinInterface $coin
+     * @param \Zoya\ProxyList $proxies
      */
-    public function __construct(ChangeIdentityInterface $identity, array $proxies=[] )
+    public function __construct(CoinInterface $coin, ProxyList $proxies )
     {
-        Assertion::notEmpty($proxies, 'At least on proxy expected');
-        $this->identity = $identity;
-        $this->proxies = new \InfiniteIterator(new \ArrayIterator($proxies));
-        $this->proxies->rewind();
+        $this->coin = $coin;
+        $this->proxies = $proxies;
     }
 
     /**
@@ -31,11 +29,11 @@ class Proxy
     }
 
     /**
-     * @return \Zoya\Loader\ChangeIdentity\ChangeIdentityInterface
+     * @return CoinInterface
      */
-    public function getIdentity()
+    public function getCoin()
     {
-        return $this->identity;
+        return $this->coin;
     }
 
     /**
@@ -43,7 +41,7 @@ class Proxy
      */
     public function getProxy()
     {
-        $proxy = $this->proxies->current();
+        $proxy = $this->getProxies()->current();
         return $proxy;
     }
 
@@ -52,8 +50,14 @@ class Proxy
      */
     public function switchIdentity()
     {
-        if ($this->getIdentity()->changeIdentity()) {
-            $this->getProxies()->next();
+        $this->getCoin()->flip();
+        if ($this->getCoin()->isLucky()) {
+            $this->switchProxy();
         }
+    }
+
+    protected function switchProxy()
+    {
+        $this->getProxies()->next();
     }
 }
