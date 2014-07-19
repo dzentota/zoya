@@ -44,6 +44,7 @@ class Generic
     {
         $result = new Result();
         $this->getProxyLoader()
+            ->applyProxy()
             ->getLoader()//Don't switch identity
             ->load($this->resource, $result);
 

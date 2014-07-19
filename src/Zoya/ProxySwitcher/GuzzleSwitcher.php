@@ -22,13 +22,13 @@ class GuzzleSwitcher extends Generic
     }
 
     /**
-     * Switch proxy
+     * Apply proxy
      */
-    public function switchProxy()
+    public function applyProxy()
     {
         $client = $this->getClient();
         $proxy = $this->getProxyServer();
         $client->setDefaultOption('proxy', $proxy->getServer());
-
+        return $this;
     }
 }

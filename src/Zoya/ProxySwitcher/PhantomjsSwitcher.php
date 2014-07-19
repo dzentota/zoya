@@ -5,7 +5,7 @@ namespace Zoya\ProxySwitcher;
 class PhantomjsSwitcher extends Generic
 {
 
-    public function switchProxy()
+    public function applyProxy()
     {
         $proxy = $this->getProxyServer();
         $loader = $this->getLoader();
@@ -19,5 +19,6 @@ class PhantomjsSwitcher extends Generic
                 return !empty($opt);
             })
         );
+        return $this;
     }
 }

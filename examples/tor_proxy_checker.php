@@ -1,14 +1,14 @@
 <?php
 require __DIR__ . '/../vendor/autoload.php';
 
-$guzzle = new \GuzzleHttp\Client(['defaults'=> ['timeout'=>2]]);
+$guzzle = new \GuzzleHttp\Client(['defaults'=> ['timeout'=>3]]);
 $loader = new \Valera\Loader\Guzzle($guzzle);
 
-$proxiesList = new Zoya\ProxyList(['http://200.84.3.227:8080']);
+$proxiesList = new Zoya\ProxyList(['socks5://127.0.0.1:9150']);
 
 $coin = new \Zoya\Coin\Random();
 
-$proxy = new \Zoya\Proxy($coin, $proxiesList);
+$proxy = new \Zoya\TorProxy($coin, $proxiesList);
 
 $loaderWithProxy = new \Zoya\ProxySwitcher\GuzzleSwitcher($loader, $proxy, $guzzle);
 
@@ -29,4 +29,3 @@ try {
         echo $e->getResponse() . "\n";
     }
 }
-

@@ -13,6 +13,6 @@ set_error_handler(
 set_exception_handler(
     function (Exception $e) {
         fwrite(STDERR, $e->getMessage() . PHP_EOL);
-        exit(1);
+        //exit(1);
     }
 );

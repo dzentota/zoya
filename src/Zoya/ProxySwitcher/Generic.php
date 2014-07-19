@@ -81,7 +81,7 @@ abstract class Generic implements LoaderInterface, ProxyInterface
      */
     public function load(Resource $resource, Result $result)
     {
-        $this->switchProxy();
+        $this->applyProxy();
         $this->getLoader()->load($resource, $result);
         $this->getProxy()->switchIdentity();
     }
@@ -99,6 +99,6 @@ abstract class Generic implements LoaderInterface, ProxyInterface
     /**
      * @return mixed
      */
-    abstract public function switchProxy();
+    abstract public function applyProxy();
 
 }
