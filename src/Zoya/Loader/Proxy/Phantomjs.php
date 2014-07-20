@@ -1,13 +1,22 @@
 <?php
 
-namespace Zoya\ProxySwitcher;
+namespace Zoya\Loader\Proxy;
 
-class PhantomjsSwitcher extends Generic
+use Zoya\ProxySwitcher\SwitcherInterface;
+
+class Phantomjs extends Generic
 {
+    public function __construct(\Zoya\Loader\Phantomjs $loader, SwitcherInterface $switcher)
+    {
+        parent::__construct($loader, $switcher);
+    }
 
+    /**
+     * @return mixed
+     */
     public function applyProxy()
     {
-        $proxy = $this->getProxyServer();
+        $proxy = $this->getSwitcher()->getProxy();
         $loader = $this->getLoader();
         $config['proxy-type'] = $proxy->getType();
         $config['proxy'] = $proxy->getPort()? $proxy->getHost() . ':' . $proxy->getPort()
@@ -16,8 +25,8 @@ class PhantomjsSwitcher extends Generic
             : $proxy->getUser();
         $loader->addCliOptions(
             array_filter($config, function($opt) {
-                return !empty($opt);
-            })
+                    return !empty($opt);
+                })
         );
         return $this;
     }

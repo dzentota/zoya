@@ -1,16 +1,12 @@
 <?php
 
-namespace Zoya\ProxyChecker;
+namespace Zoya;
 
 use Valera\Loader\Result;
 use Valera\Resource;
-use Zoya\ProxySwitcher\ProxyInterface;
+use Zoya\Loader\Proxy\ProxyInterface;
 
-/**
- * Class ProxyChecker
- * @package Zoya
- */
-class Generic
+class ProxyChecker
 {
     /**
      * @var callable
@@ -77,7 +73,7 @@ class Generic
     }
 
     /**
-     * @return \Zoya\ProxySwitcher\ProxyInterface
+     * @return ProxyInterface
      */
     public function getProxyLoader()
     {

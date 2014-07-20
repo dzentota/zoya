@@ -2,17 +2,16 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$guzzle = new \GuzzleHttp\Client(['defaults'=> ['timeout'=>3]]);
+
+$guzzle = new \GuzzleHttp\Client();
 $loader = new \Valera\Loader\Guzzle($guzzle);
 
-$proxiesList = new Zoya\ProxyList(['socks5://127.0.0.1:9150']);
+$proxyServer = new \Zoya\TorProxyServer('socks5://127.0.0.1:9150');
+$proxiesList = new \Zoya\InfiniteList([$proxyServer], new \Zoya\Coin\Always());
 
-$coin = new \Zoya\Coin\Always();
+$proxySwitcher = new Zoya\ProxySwitcher\Tor($proxiesList, new \Zoya\Coin\Always());
 
-$proxy = new \Zoya\TorProxy($coin, $proxiesList);
-$proxy->setCookieFileName('/usr/bin/tor-browser/Data/Tor/control_auth_cookie');
-
-$loaderWithProxy = new \Zoya\ProxySwitcher\GuzzleSwitcher($loader, $proxy, $guzzle);
+$loaderWithProxy = new \Zoya\Loader\Proxy\Guzzle($loader, $proxySwitcher, $guzzle);
 
 $resource = new \Valera\Resource('https://www.whatismyip.com/', null, \Valera\Resource::METHOD_GET );
 $result = new \Valera\Loader\Result();

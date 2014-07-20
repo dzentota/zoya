@@ -1,6 +1,6 @@
 <?php
 
-namespace Zoya\ProxySwitcher;
+namespace Zoya\Loader\Proxy;
 
 interface ProxyInterface
 {

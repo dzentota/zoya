@@ -2,21 +2,15 @@
 
 namespace Zoya;
 
-use Assert\Assertion;
-use Zoya\Coin\CoinInterface;
-
 class Proxy
 {
     private $proxies;
-    private $coin;
 
     /**
-     * @param \Zoya\Coin\CoinInterface $coin
-     * @param \Zoya\ProxyList $proxies
+     * @param InfiniteList $proxies
      */
-    public function __construct(CoinInterface $coin, ProxyList $proxies )
+    public function __construct(InfiniteList $proxies )
     {
-        $this->coin = $coin;
         $this->proxies = $proxies;
     }
 
@@ -26,14 +20,6 @@ class Proxy
     public function getProxies()
     {
         return $this->proxies;
-    }
-
-    /**
-     * @return CoinInterface
-     */
-    public function getCoin()
-    {
-        return $this->coin;
     }
 
     /**
@@ -56,7 +42,7 @@ class Proxy
         }
     }
 
-    protected function switchProxy()
+    public function switchProxy()
     {
         $this->getProxies()->next();
     }
