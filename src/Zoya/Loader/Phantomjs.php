@@ -162,12 +162,12 @@ class Phantomjs implements LoaderInterface
                 sprintf("%s %s %s %s %s %s %s %s",
                         $phantomJS,
                         $this->buildCliOptions(),
-                        ZOYA_ROOT . '/loader.js', 
+                        __DIR__ . '/loader.js',
                         json_encode($resource->getHeaders()),
                         json_encode($this->settings),
                         $resource->getUrl(),
                         $resource->getMethod(),
-                        $resource->getData()
+                        $resource->getPayload()
                     )
                 );
             $response = shell_exec($cmd);

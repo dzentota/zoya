@@ -2,6 +2,7 @@
 namespace Zoya\Gearman;
 
 use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Worker
@@ -24,14 +25,19 @@ class Worker
      */
     private $worker;
 
+    private $handler;
+
     /**
+     * @param \Psr\Log\LoggerInterface $logger
      * @param string $host
      * @param int $port
      */
-    public function __construct($host = 'localhost', $port = 4730)
+    public function __construct(LoggerInterface $logger, $host = 'localhost', $port = 4730)
     {
         $this->host = $host;
         $this->port = $port;
+        $this->logger = $logger;
+
         $this->worker = new \GearmanWorker();
         $this->worker->addServer($this->host, $this->port);
 
@@ -42,10 +48,13 @@ class Worker
     /**
      * Add new job for worker
      * @param $job
+     * @param callable $handler
      */
-    public function addJob($job)
+    public function addJob($job, callable $handler)
     {
-        $this->worker->addFunction($job, "jobHandler");
+        $this->handler = $handler;
+        echo 'added JOB', PHP_EOL;
+        $this->worker->addFunction($job, [$this, 'jobHandler']);
     }
 
     /**
@@ -65,7 +74,8 @@ class Worker
         $work = json_decode($job->workload());
 
         if (!empty($work)) {
-            (true === processFeed($work)) ?
+            $handler = $this->handler;
+            (true === $handler($work)) ?
                 $job->sendComplete('OK') :
                 $job->sendFail();
 

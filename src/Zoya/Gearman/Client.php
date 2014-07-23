@@ -3,6 +3,7 @@
 namespace Zoya\Gearman;
 
 use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Client
@@ -26,13 +27,15 @@ class Client
     private $client;
 
     /**
+     * @param \Psr\Log\LoggerInterface $logger
      * @param string $host
      * @param int $port
      */
-    public function __construct($host = 'localhost', $port = 4730)
+    public function __construct(LoggerInterface $logger, $host = 'localhost', $port = 4730)
     {
         $this->host = $host;
         $this->port = $port;
+        $this->logger = $logger;
 
         $this->client = new \GearmanClient();
         $this->client->addServer($this->host, $this->port);
@@ -41,13 +44,14 @@ class Client
 
     /**
      * Add new task to worker
-     * @param $worker
      * @param $task
+     * @param $data
      */
-    public function addTaskToWorker($worker, $task)
+    public function addTaskToWorker($task, $data)
     {
-        $this->logger->debug("Add task <$task> to worker <$worker>");
-        $this->client->addTaskBackground('feed_worker', json_encode($task));
+        $work = json_encode($data);
+        $this->logger->debug("Added new task <$task>. Data: $work");
+        $this->client->addTaskBackground($task, $work);
 
     }
 
