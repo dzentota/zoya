@@ -59,7 +59,7 @@ class Delayed implements LoaderInterface
      */
     public function getDelay()
     {
-        return isset($this->config['delay'])? $this->config['delay'] : self::DEFAULT_DELAY;
+        return isset($this->delay)? $this->delay : self::DEFAULT_DELAY;
     }
 
     /**
