@@ -1,7 +1,7 @@
 <?php
 require __DIR__ . '/../vendor/autoload.php';
 
-$guzzle = new \GuzzleHttp\Client(['defaults'=> ['timeout'=>5]]);
+$guzzle = new \GuzzleHttp\Client(['defaults'=> ['timeout'=>1]]);
 $loader = new \Valera\Loader\Guzzle($guzzle);
 
 $proxyServer = new \Zoya\ProxyServer('http://110.169.100.27:8080');

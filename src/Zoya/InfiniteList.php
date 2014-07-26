@@ -98,6 +98,13 @@ class InfiniteList implements \Iterator
         }
     }
 
+    /**
+     * Remove current item from iterator
+     */
+    public function removeCurrentItem()
+    {
+        $this->list->offsetUnset($this->list->key());
+    }
 
     /**
      * (PHP 5 &gt;= 5.0.0)<br/>
