@@ -92,9 +92,13 @@ class InfiniteList implements \Iterator
      */
     public function next()
     {
-        $this->getCoin()->flip();
-        if ($this->getCoin()->isLucky()) {
-            $this->list->next();
+        if ($this->list->valid()) {
+            $this->getCoin()->flip();
+            if ($this->getCoin()->isLucky()) {
+                $this->list->next();
+            }
+        } else {
+            throw new \RuntimeException('No more items');
         }
     }
 
@@ -104,6 +108,7 @@ class InfiniteList implements \Iterator
     public function removeCurrentItem()
     {
         $this->list->offsetUnset($this->list->key());
+        $this->list->next();
     }
 
     /**

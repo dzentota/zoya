@@ -6,6 +6,7 @@ use GuzzleHttp\Exception\RequestException;
 use Valera\Loader\LoaderInterface;
 use Valera\Loader\Result;
 use Valera\Resource;
+use Zoya\ProxyChecker;
 
 class Recoverable implements LoaderInterface
 {
@@ -19,6 +20,7 @@ class Recoverable implements LoaderInterface
      */
     protected $delay;
 
+    protected $checker;
     /**
      * @var int Default delays between requests in microseconds
      */
@@ -26,10 +28,11 @@ class Recoverable implements LoaderInterface
 
     protected $tries = 0;
 
-    public function __construct(LoaderInterface $loader, array $delays = [])
+    public function __construct(LoaderInterface $loader, array $delays = [], ProxyChecker $checker = null)
     {
         $this->loader = $loader;
         $this->delays = empty($delays)? $this->defaultDelays : $delays;
+        $this->checker = $checker;
     }
 
     public function getMaxTries()
@@ -56,6 +59,7 @@ class Recoverable implements LoaderInterface
         try {
             $this->tries++;
             $response = $this->loader->load($resource, $result);
+            $this->tries = 0;
         } catch (BadResponseException $e) {
             return $this->reload($resource, $cloned, $e);
         } catch (RequestException $e) {
@@ -95,8 +99,17 @@ class Recoverable implements LoaderInterface
      */
     protected function reload(Resource $resource, $cloned, $e)
     {
-        //@todo switch proxy if its dead
         if ($this->tries < $this->getMaxTries()) {
+            if (in_array('Zoya\Loader\Proxy\ProxyInterface', class_implements($this->loader))) {
+                try {
+                    if (!$this->checker->check()) {//Proxy is OK, retry after timeout
+                        $this->loader->getSwitcher()->getProxies()->removeCurrentItem();
+                    }
+                } catch (RequestException $e) {//possibly timed out
+                    $this->loader->getSwitcher()->getProxies()->removeCurrentItem();
+                }
+
+            }
             $this->makeDelay($this->getDelay($this->tries));
             return $this->load($resource, $cloned);
         } else {
